@@ -4,7 +4,7 @@ const cors = require('cors')
 const Person = require('./models/person')
 const app = express()
 
-morgan.token('body', (req, res) => {return JSON.stringify(req.body)})
+morgan.token('body', (req, res) => { return JSON.stringify(req.body) })
 
 app.use(express.static('dist'))
 app.use(cors())
@@ -34,41 +34,37 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
-const generateId = () => {
-    return Math.floor(Math.random() * 10000)
-  }
-  
-  app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response) => {
     const body = request.body
-  
-    if (!body.name || !body.number) {
-      return response.status(400).json({ 
-        error: 'content missing' 
-      })
-    }
 
-    if(persons.find(person => person.name === body.name)){
-        return response.status(409).json({
-            error: 'name must be unique'
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'content missing'
         })
     }
-  
+
+    // if (persons.find(person => person.name === body.name)) {
+    //     return response.status(409).json({
+    //         error: 'name must be unique'
+    //     })
+    // }
+
     const person = {
-      name: body.name,
-      number: body.number,
-      id: generateId(),
+        name: body.name,
+        number: body.number,
+        id: Math.floor(Math.random() * 10000),
     }
-  
-    persons = persons.concat(person)
-  
+
+    Person.save(person)
+
     response.json(person)
-  })
+})
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     persons = persons.filter(person => person.id !== id)
     response.status(204).end()
-  })
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
